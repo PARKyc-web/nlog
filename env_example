@@ -1,0 +1,4 @@
+# install dotenv, input blow command your terminal
+# npm i dotenv
+OPENAI_API_KEY=PLEASE_INPUT_YOUR_KEY
+SOME_CONFIG=1
