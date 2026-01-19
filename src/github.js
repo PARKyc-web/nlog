@@ -78,8 +78,6 @@ router.get("/commit", async (req, res) => {
     // 커밋의 변경사항을 전부 출력한다....
     // 파일별로 정리할 필요가 있을거 같음..
 
-    const url3 =
-
     res.send(commit_list);
 });
 
