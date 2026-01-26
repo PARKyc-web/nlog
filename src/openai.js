@@ -1,6 +1,5 @@
 import OpenAI from "openai";
 import express from "express";
-import {route} from "express/lib/application.js";
 
 const router = express.Router();
 const client = new OpenAI({apiKey: process.env.OPENAI_API_KEY});
