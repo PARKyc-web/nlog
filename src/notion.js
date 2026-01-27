@@ -73,11 +73,32 @@ router.get("/data-source", async (req, res) => {
     }
 });
 
-router.get("/page/:id", async (req, res) => {
+router.get("/db/:id", async (req, res) => {
     try {
         const pageId = req.params.id;
 
         const notionRes = await fetch(`https://api.notion.com/v1/databases/${pageId}`, {
+            method: "GET",
+            headers: notionHeaders(),
+        });
+
+        if (!notionRes.ok) {
+            return res.status(notionRes.status).send(await notionRes.text());
+        }
+
+        const page = await notionRes.json();
+
+        res.json(page);
+    } catch (e) {
+        res.status(500).json({ message: "server error", error: String(e) });
+    }
+});
+
+router.get("/ds/:id", async (req, res) => {
+    try {
+        const pageId = req.params.id;
+
+        const notionRes = await fetch(`https://api.notion.com/v1/data_sources/${pageId}`, {
             method: "GET",
             headers: notionHeaders(),
         });
