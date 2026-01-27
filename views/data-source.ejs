@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Notion Data Sources</title>
+    <link rel="stylesheet" href="/public/data-source.css" />
+</head>
+
+<body>
+<div class="container">
+    <h1>Notion Data Sources</h1>
+    <p class="muted">총 <%= Array.isArray(dataSources) ? dataSources.length : 0 %>개</p>
+
+    <% if (!Array.isArray(dataSources) || dataSources.length === 0) { %>
+        <p>데이터가 없습니다.</p>
+    <% } else { %>
+        <% dataSources.forEach((ds) => { %>
+            <section class="ds">
+                <div class="ds-header">
+                    <h2 class="ds-title"><%= ds.title ?? "(untitled)" %></h2>
+                    <a class="btn" href="/notion/page/<%= encodeURIComponent(ds.database) %>">
+                        페이지 추가하기
+                    </a>
+                </div>
+
+                <div class="muted">id: <code><%= ds.id %></code></div>
+
+                <% const props = ds.properties ?? {}; %>
+                <% const propEntries = Object.entries(props); %>
+
+                <h3 class="divider">Properties (<%= propEntries.length %>)</h3>
+
+                <% if (propEntries.length === 0) { %>
+                    <p class="muted">properties가 없습니다.</p>
+                <% } else { %>
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>이름</th>
+                            <th>타입</th>
+                            <th>옵션/포맷</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <% propEntries.forEach(([propName, prop]) => { %>
+                            <tr>
+                                <td>
+                                    <strong><%= propName %></strong>
+                                    <div class="muted">propId: <code><%= prop.id %></code></div>
+                                </td>
+                                <td><code><%= prop.type %></code></td>
+                                <td>
+                                    <% if (prop.type === "select" && prop.select?.options?.length) { %>
+                                        <% prop.select.options.forEach((opt) => { %>
+                                            <span class="badge"><%= opt.name %></span>
+                                        <% }) %>
+                                    <% } else if (prop.type === "multi_select" && prop.multi_select?.options?.length) { %>
+                                        <% prop.multi_select.options.forEach((opt) => { %>
+                                            <span class="badge"><%= opt.name %></span>
+                                        <% }) %>
+                                    <% } else if (prop.type === "number") { %>
+                                        <span class="muted">format: <code><%= prop.number?.format ?? "-" %></code></span>
+                                    <% } else if (
+                                            prop.type === "date" ||
+                                            prop.type === "people" ||
+                                            prop.type === "title" ||
+                                            prop.type === "created_by"
+                                    ) { %>
+                                        <span class="muted"><%= prop.type %></span>
+                                    <% } else { %>
+                                        <span class="muted">-</span>
+                                    <% } %>
+                                </td>
+                            </tr>
+                        <% }) %>
+                        </tbody>
+                    </table>
+                <% } %>
+            </section>
+        <% }) %>
+    <% } %>
+</div>
+</body>
+</html>

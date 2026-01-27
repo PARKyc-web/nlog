@@ -60,17 +60,40 @@ router.get("/data-source", async (req, res) => {
         const dataMap = data.results.filter(d => d.database_parent.type === 'workspace')
             .map(d => ({
                 id: d.id,
+                database: d.parent.database_id,
                 title: d.title[0].plain_text,
                 properties: d.properties,
             }));
 
-        res.json(dataMap);
+        res.render("data-source", {"dataSources":dataMap});
 
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: err.message ?? "Failed to fetch Notion pages" });
     }
 });
+
+router.get("/page/:id", async (req, res) => {
+    try {
+        const pageId = req.params.id;
+
+        const notionRes = await fetch(`https://api.notion.com/v1/databases/${pageId}`, {
+            method: "GET",
+            headers: notionHeaders(),
+        });
+
+        if (!notionRes.ok) {
+            return res.status(notionRes.status).send(await notionRes.text());
+        }
+
+        const page = await notionRes.json();
+
+        res.json(page);
+    } catch (e) {
+        res.status(500).json({ message: "server error", error: String(e) });
+    }
+});
+
 
 router.get("/add-page", async (req, res) =>{
 

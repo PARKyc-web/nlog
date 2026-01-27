@@ -8,6 +8,8 @@ import openaiAPI from "./src/openai.js";
 const app = express();
 const PORT = Number(process.env.PORT ?? 3000);
 
+app.set("view engine", "ejs");
+
 app.get("/", (req, res) => {
     res.send("Hello Express!");
 });
@@ -15,5 +17,7 @@ app.get("/", (req, res) => {
 app.use("/openai", openaiAPI);
 app.use("/github", githubAPI);
 app.use("/notion", notionAPI);
+
+app.use("/public", express.static("public"));
 
 app.listen(PORT, () => console.log(`http://localhost:${PORT}`));
