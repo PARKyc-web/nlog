@@ -5,7 +5,8 @@
   "description": "Auto Summarize Git Commit Contents & Add Note to Notion",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "inspect": "nodemon --inspect index.js"
   },
   "keywords": [],
   "author": "",

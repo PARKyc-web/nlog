@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Notion Data Sources</title>
-    <link rel="stylesheet" href="/public/data-source.css" />
+    <link rel="stylesheet" href="/data-source.css" />
 </head>
 
 <body>
@@ -25,6 +25,9 @@
                         </a>
                         <a class="btn" href="/notion/ds/<%= encodeURIComponent(ds.id) %>">
                             데이터 소스 확인
+                        </a>
+                        <a class="btn" href="/notion/page/<%= encodeURIComponent(ds.id) %>">
+                            페이지 추가하기
                         </a>
                     </div>
                 </div>

@@ -4,6 +4,9 @@ const router = express.Router();
 
 const pageSize = 100;
 
+const DATABASE_URL = "https://api.notion.com/v1/database/";
+const DATASOURCE_URL = "https://api.notion.com/v1/data_sources/";
+
 // @RequestMapping("/notion")
 router.get("/", async (req, res) => {
     try {
@@ -65,7 +68,7 @@ router.get("/data-source", async (req, res) => {
                 properties: d.properties,
             }));
 
-        res.render("data-source", {"dataSources":dataMap});
+        res.render("notion/data-source", {"dataSources":dataMap});
 
     } catch (err) {
         console.error(err);
@@ -114,6 +117,30 @@ router.get("/ds/:id", async (req, res) => {
         res.status(500).json({ message: "server error", error: String(e) });
     }
 });
+
+router.get("/page/:id", async (req, res) => {
+
+    const datasourceId = req.params.id;
+    const pRes = await fetch(`${DATASOURCE_URL}${datasourceId}`, {
+        method: "GET",
+        headers: notionHeaders(),
+    });
+
+    if(!pRes.ok){
+        return res.status(pRes.status).send(await pRes.text());
+    }
+
+    const properties = await pRes.json();
+    console.log(properties);
+    const data = {
+        database_id: properties.parent.database_id,
+        datasource_id: properties.id,
+        properties: properties.properties,
+    };
+    // res.send(data);
+    res.render("notion/form", data);
+});
+
 
 
 router.get("/add-page", async (req, res) =>{

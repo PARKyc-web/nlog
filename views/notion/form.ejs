@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>페이지 추가하기</title>
+
+    <!-- app.use(express.static("public"))면 /data-source.css 로 접근 -->
+    <link rel="stylesheet" href="/data-source.css" />
+</head>
+
+<body>
+<div class="container">
+    <h1>페이지 추가하기</h1>
+
+    <% const entries = Object.entries(properties ?? {}); %>
+
+    <% if (entries.length === 0) { %>
+        <p>properties가 없습니다.</p>
+    <% } else { %>
+        <!-- ✅ 페이지 생성용 폼 (action은 네 서버 라우트에 맞춰 변경) -->
+        <form method="POST" action="/notion/page/create">
+            <input type="hidden" name="database_id" value="<%= database_id %>" />
+            <input type="hidden" name="datasource_id" value="<%= datasource_id %>" />
+
+            <table>
+                <thead>
+                <tr>
+                    <th>필드</th>
+                    <th>타입</th>
+                    <th>값</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <% entries.filter(([_, prop]) => prop?.type !== "created_by").forEach(([propName, prop]) => { %>
+
+                    <tr>
+                        <td>
+                            <strong><%= propName %></strong>
+                        </td>
+
+                        <td><code><%= prop.type %></code></td>
+
+                        <td>
+                            <input type="hidden" name="prop_name[<%= prop.id %>]" value="<%= propName %>" />
+                            <input type="hidden" name="prop_type[<%= prop.id %>]" value="<%= prop.type %>" />
+
+                            <% if (prop.type === "title") { %>
+                                <input type="text" name="prop_value[<%= prop.id %>]" placeholder="제목 입력" required />
+
+                            <% } else if (prop.type === "date") { %>
+                                <input type="date" name="prop_value[<%= prop.id %>]" />
+
+                            <% } else if (prop.type === "number") { %>
+                                <input type="number" step="any" name="prop_value[<%= prop.id %>]" />
+
+                            <% } else if (prop.type === "select") { %>
+                                <select name="prop_value[<%= prop.id %>]">
+                                    <option value="">(선택 안함)</option>
+                                    <% (prop.select?.options ?? []).forEach((opt) => { %>
+                                        <option value="<%= opt.name %>"><%= opt.name %></option>
+                                    <% }) %>
+                                </select>
+
+                            <% } else if (prop.type === "multi_select") { %>
+                                <% (prop.multi_select?.options ?? []).forEach((opt) => { %>
+                                    <label class="badge">
+                                        <input type="checkbox" name="prop_multi[<%= prop.id %>][]" value="<%= opt.name %>" />
+                                        <%= opt.name %>
+                                    </label>
+                                <% }) %>
+
+                            <% } else { %>
+                                <span class="muted">MVP 입력 미지원 타입</span>
+                            <% } %>
+                        </td>
+                    </tr>
+
+                <% }) %>
+                </tbody>
+            </table>
+
+            <hr class="divider" />
+
+            <h3 class="divider">본문(선택)</h3>
+            <p class="muted">
+                필요하면 Notion blocks(children) JSON을 넣고 서버에서 JSON.parse 해서 children으로 보내면 됨.
+            </p>
+            <textarea
+                    name="content_json"
+                    rows="10"
+                    placeholder='예) [{"object":"block","type":"paragraph","paragraph":{"rich_text":[{"type":"text","text":{"content":"내용"}}]}}]'
+            ></textarea>
+
+            <div class="divider">
+                <button type="submit" class="btn">생성하기</button>
+            </div>
+        </form>
+    <% } %>
+</div>
+</body>
+</html>
