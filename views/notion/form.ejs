@@ -19,7 +19,7 @@
         <p>properties가 없습니다.</p>
     <% } else { %>
         <!-- ✅ 페이지 생성용 폼 (action은 네 서버 라우트에 맞춰 변경) -->
-        <form method="POST" action="/notion/page/create">
+        <form method="POST" action="/notion/page/">
             <input type="hidden" name="database_id" value="<%= database_id %>" />
             <input type="hidden" name="datasource_id" value="<%= datasource_id %>" />
 
@@ -43,20 +43,19 @@
                         <td><code><%= prop.type %></code></td>
 
                         <td>
-                            <input type="hidden" name="prop_name[<%= prop.id %>]" value="<%= propName %>" />
-                            <input type="hidden" name="prop_type[<%= prop.id %>]" value="<%= prop.type %>" />
+                            <input type="hidden" name="prop_type[<%= prop.name %>]" value="<%= prop.type %>" />
 
                             <% if (prop.type === "title") { %>
-                                <input type="text" name="prop_value[<%= prop.id %>]" placeholder="제목 입력" required />
+                                <input type="text" name="prop_value[<%= prop.name %>]" placeholder="제목 입력" required />
 
                             <% } else if (prop.type === "date") { %>
-                                <input type="date" name="prop_value[<%= prop.id %>]" />
+                                <input type="date" name="prop_value[<%= prop.name %>]" />
 
                             <% } else if (prop.type === "number") { %>
-                                <input type="number" step="any" name="prop_value[<%= prop.id %>]" />
+                                <input type="number" step="any" name="prop_value[<%= prop.name %>]" />
 
                             <% } else if (prop.type === "select") { %>
-                                <select name="prop_value[<%= prop.id %>]">
+                                <select name="prop_value[<%= prop.name %>]">
                                     <option value="">(선택 안함)</option>
                                     <% (prop.select?.options ?? []).forEach((opt) => { %>
                                         <option value="<%= opt.name %>"><%= opt.name %></option>
@@ -66,7 +65,7 @@
                             <% } else if (prop.type === "multi_select") { %>
                                 <% (prop.multi_select?.options ?? []).forEach((opt) => { %>
                                     <label class="badge">
-                                        <input type="checkbox" name="prop_multi[<%= prop.id %>][]" value="<%= opt.name %>" />
+                                        <input type="checkbox" name="prop_value[<%= prop.name %>][]" value="<%= opt.name %>" />
                                         <%= opt.name %>
                                     </label>
                                 <% }) %>
@@ -83,12 +82,12 @@
 
             <hr class="divider" />
 
-            <h3 class="divider">본문(선택)</h3>
+            <h3 class="divider">본문(커밋내용 자동 요약)</h3>
             <p class="muted">
                 필요하면 Notion blocks(children) JSON을 넣고 서버에서 JSON.parse 해서 children으로 보내면 됨.
             </p>
             <textarea
-                    name="content_json"
+                    name="contents"
                     rows="10"
                     placeholder='예) [{"object":"block","type":"paragraph","paragraph":{"rich_text":[{"type":"text","text":{"content":"내용"}}]}}]'
             ></textarea>

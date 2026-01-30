@@ -9,7 +9,7 @@ const affiliation = "owner";
 // 일단 owner 기준으로 작업하자
 
 // @RequestMapping("/github")
-router.get("/", async (req, res) => {
+router.get("/repo", async (req, res) => {
     try {
         const url = new URL("https://api.github.com/user/repos");
         url.searchParams.set("per_page", String(per_page));
@@ -28,6 +28,7 @@ router.get("/", async (req, res) => {
 
         res.json(
             repos.map((r) => ({
+                raw: r,
                 name: r.name,
                 full_name: r.full_name,
                 private: r.private,

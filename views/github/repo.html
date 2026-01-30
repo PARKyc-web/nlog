@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Repo List</title>
+
+    <link rel="stylesheet" href="/github-style.css" />
+</head>
+
+<body>
+<h1 style="margin:0 0 8px;">GitHub Repos</h1>
+
+<header>
+    <input id="q" type="search" placeholder="검색: name / full_name / language" />
+    <select id="sort">
+        <option value="updated_desc">최근 업데이트</option>
+        <option value="name_asc">이름 (A→Z)</option>
+        <option value="name_desc">이름 (Z→A)</option>
+    </select>
+    <select id="privacy">
+        <option value="all">공개/비공개 전체</option>
+        <option value="public">공개만</option>
+        <option value="private">비공개만</option>
+    </select>
+    <button id="reload">새로고침</button>
+    <span class="meta" id="count"></span>
+</header>
+
+<div id="status"></div>
+<section id="list" class="grid"></section>
+
+<script>
+    const API_URL = "/api/github/repo";
+
+    const els = {
+        q: document.getElementById("q"),
+        sort: document.getElementById("sort"),
+        privacy: document.getElementById("privacy"),
+        reload: document.getElementById("reload"),
+        status: document.getElementById("status"),
+        list: document.getElementById("list"),
+        count: document.getElementById("count"),
+    };
+
+    let repos = []; // 원본 데이터
+
+    function escapeHtml(str) {
+        return String(str)
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+    }
+
+    function formatDate(iso) {
+        if (!iso) return "-";
+        const d = new Date(iso);
+        if (Number.isNaN(d.getTime())) return iso;
+        // 한국 기준 표시(브라우저 로컬 타임존)
+        return d.toLocaleString("ko-KR", { dateStyle: "medium", timeStyle: "short" });
+    }
+
+    function normalizeRepo(repo) {
+        return {
+            name: repo?.name ?? "-",
+            full_name: repo?.full_name ?? "-",
+            private: Boolean(repo?.private),
+            html_url: repo?.html_url ?? "",
+            default_branch: repo?.default_branch ?? "-",
+            updated_at: repo?.updated_at ?? "",
+            language: repo?.language ?? "-",
+        };
+    }
+
+    function applyFilters(list) {
+        const q = els.q.value.trim().toLowerCase();
+        const privacy = els.privacy.value;
+
+        let out = list;
+
+        // privacy filter
+        if (privacy === "public") out = out.filter(r => !r.private);
+        if (privacy === "private") out = out.filter(r => r.private);
+
+        // search filter
+        if (q) {
+            out = out.filter(r => {
+                const hay = `${r.name} ${r.full_name} ${r.language}`.toLowerCase();
+                return hay.includes(q);
+            });
+        }
+
+        // sorting
+        const sort = els.sort.value;
+        out = [...out].sort((a, b) => {
+            if (sort === "updated_desc") {
+                return new Date(b.updated_at) - new Date(a.updated_at);
+            }
+            if (sort === "name_asc") return a.name.localeCompare(b.name);
+            if (sort === "name_desc") return b.name.localeCompare(a.name);
+            return 0;
+        });
+
+        return out;
+    }
+
+    function render(list) {
+        const filtered = applyFilters(list);
+        els.count.textContent = `표시: ${filtered.length} / 전체: ${list.length}`;
+
+        if (filtered.length === 0) {
+            els.list.innerHTML = `<div class="empty">조건에 맞는 repo가 없습니다.</div>`;
+            return;
+        }
+
+        els.list.innerHTML = filtered.map(r => {
+            const badgeClass = r.private ? "private" : "public";
+            const badgeText = r.private ? "PRIVATE" : "PUBLIC";
+
+            const url = r.html_url ? escapeHtml(r.html_url) : "";
+            const linkHtml = url
+                ? `<a href="${url}" target="_blank" rel="noopener noreferrer">${escapeHtml(r.full_name)}</a>`
+                : escapeHtml(r.full_name);
+
+            return `
+            <article class="card">
+              <div class="row">
+                <div>
+                  <p class="title">${escapeHtml(r.name)}</p>
+                  <div class="topline">
+                    <span class="badge ${badgeClass}">${badgeText}</span>
+                    <span class="badge">${escapeHtml(r.language ?? "-")}</span>
+                    <!-- <span class="meta">${escapeHtml(r.language ?? "-")}</span> -->
+                  </div>
+                </div>
+              </div>
+
+              <div class="kv">
+                <div class="k">Repo Link</div>
+                <div class="v">${linkHtml}</div>
+
+                <div class="k">최근 Commit</div>
+                <div class="v">${escapeHtml(formatDate(r.updated_at))}</div>
+              </div>
+            </article>
+          `;
+        }).join("");
+    }
+
+    async function load() {
+        els.status.innerHTML = `<p class="meta">불러오는 중...</p>`;
+        try {
+            const res = await fetch(API_URL, { headers: { "Accept": "application/json" } });
+            if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
+
+            // ✅ 서버가 {items:[...]}로 주면 여기만 바꾸면 됨
+            const data = await res.json();
+            const arr = Array.isArray(data) ? data : (data.items ?? data.repos ?? []);
+            repos = arr.map(normalizeRepo);
+
+            els.status.innerHTML = "";
+            render(repos);
+        } catch (e) {
+            els.status.innerHTML = `<div class="error">로드 실패: ${escapeHtml(e.message)}</div>`;
+            els.list.innerHTML = "";
+            els.count.textContent = "";
+        }
+    }
+
+    // 이벤트 바인딩
+    ["input", "change"].forEach(evt => {
+        els.q.addEventListener(evt, () => render(repos));
+        els.sort.addEventListener(evt, () => render(repos));
+        els.privacy.addEventListener(evt, () => render(repos));
+    });
+    els.reload.addEventListener("click", load);
+
+    // 초기 로드
+    load();
+</script>
+</body>
+</html>
