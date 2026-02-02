@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>GitHub → Notion Summary</title>
+
+    <link rel="stylesheet" href="/commit-style.css" />
+</head>
+<body>
+<div class="wrap">
+
+    <button class="backBtn backBtn--floating" id="btnBack" type="button" aria-label="이전">
+        <span class="backIcon">←</span>
+        <span class="backText">이전</span>
+    </button>
+
+    <!-- LEFT -->
+    <section class="panel" id="leftPanel">
+        <div>
+            <h2>GitHub</h2>
+            <div class="muted">레포지토리 정보 + 날짜 범위(2개)만 표시</div>
+        </div>
+
+        <div class="repoBox" id="repoBox">
+            <div class="repoTop">
+                <div class="repoName" id="repoName">owner/repository</div>
+                <span class="pill" id="repoVisibility">public</span>
+            </div>
+            <div class="repoMeta">
+                <div id="repoDesc">레포 설명이 여기에 표시됩니다.</div>
+                <div>⭐ <span id="repoStars">0</span> · 🍴 <span id="repoForks">0</span> · 🕒 <span id="repoUpdated">-</span></div>
+            </div>
+        </div>
+
+        <div class="field">
+            <label for="commitDate">Choose Commit Date</label>
+            <input id="commitDate" type="date" />
+        </div>
+
+        <div class="btnRow">
+            <button class="primary" id="createSummary">Commit 요약 →</button>
+        </div>
+    </section>
+
+    <!-- ARROW -->
+    <div class="arrowCol" aria-hidden="true">
+        <div class="arrow" title="GitHub to Notion">
+            ➜
+        </div>
+    </div>
+
+    <!-- RIGHT -->
+    <section class="panel" id="rightPanel">
+        <div>
+            <h2>Notion</h2>
+            <div class="muted">종류 선택 + 입력 날짜 + 요약 표시/수정</div>
+        </div>
+
+        <div class="field">
+            <label for="notionType">노션 종류</label>
+            <select id="notionType">
+                <option value="">선택하세요</option>
+                <option value="daylog">Day Log</option>
+                <option value="nlog">nlog</option>
+                <option value="meeting">Meeting Notes</option>
+            </select>
+        </div>
+
+        <div class="field">
+            <label for="notionDate">입력 날짜</label>
+            <input id="notionDate" type="date" />
+        </div>
+
+        <div class="field">
+            <label for="summaryArea">커밋 요약 (표시 & 수정)</label>
+            <textarea id="summaryArea" placeholder="여기에 커밋 요약 내용이 채워지고, 수정도 가능합니다."></textarea>
+        </div>
+
+        <div class="btnRow">
+            <button class="primary" id="notionGenerate">요약 페이지 생성 →</button>
+        </div>
+    </section>
+
+</div>
+
+<script>
+    document.addEventListener("", () => {
+        init();
+    });
+
+    function init(){
+        // 날짜 초기값 설정
+        $("commitDate").value = toISODate(new Date());
+        $("notionDate").value = toISODate(new Date());
+
+        // 뒤로가기 버튼 이벤트
+        document.getElementById("btnBack").addEventListener("click", () => {
+            window.location.href="/repo";
+        });
+
+        //
+    }
+
+    // ====== Demo state (나중에 실제 API 붙일 때 여기만 교체하면 됨) ======
+    const state = {
+        repo: null,
+    };
+
+    const $ = (id) => document.getElementById(id);
+
+    function setRepoUI(repo) {
+        state.repo = repo;
+        $("repoName").textContent = repo.full_name ?? "owner/repository";
+        $("repoVisibility").textContent = repo.visibility ?? "public";
+        $("repoDesc").textContent = repo.description ?? "레포 설명이 없습니다.";
+        $("repoStars").textContent = String(repo.stargazers_count ?? 0);
+        $("repoForks").textContent = String(repo.forks_count ?? 0);
+        $("repoUpdated").textContent = repo.updated_at
+            ? new Date(repo.updated_at).toLocaleString()
+            : "-";
+    }
+
+    function toISODate(d) {
+        // input[type=date] 용 yyyy-mm-dd
+        const pad = (n) => String(n).padStart(2, "0");
+        return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+    }
+
+    function createSummary(){
+
+    }
+
+    // ====== Events ======
+    $("createSummary").addEventListener("click", () => {
+
+        if (!state.repo) {
+            // 레포 정보는 "표시"가 목적이라서, 없으면 기본값이라도 진행
+            setRepoUI({
+                full_name: "owner/repository",
+                visibility: "public",
+                description: "레포 정보를 아직 로드하지 않았습니다.",
+                stargazers_count: 0,
+                forks_count: 0,
+                updated_at: null,
+            });
+        }
+
+        const repoName = state.repo?.full_name ?? "owner/repository";
+        const notionType = $("notionType").value || "(노션 종류 미선택)";
+        const notionDate = $("notionDate").value || "(입력 날짜 미지정)";
+    });
+/*
+        const demoSummary =
+            `[요약 데모]
+- Repo: ${repoName}
+- Range: ${fromDate} ~ ${toDate}
+- NotionType: ${notionType}
+- NotionDate: ${notionDate}
+
+- 변경사항:
+  - 핵심 로직 수정 2건
+  - 버그 수정 1건
+  - 리팩토링 1건
+
+- 메모:
+  - 아래 내용을 원하는 대로 수정한 뒤 Notion 등록 로직에 넘기면 됨.`;
+
+        $("summaryArea").value = demoSummary;
+        $("summaryArea").focus();
+    });
+*/
+
+</script>
+</body>
+</html>

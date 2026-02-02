@@ -44,14 +44,47 @@ button { cursor:pointer; }
 }
 
 .row { display:flex; justify-content:space-between; gap:10px; align-items:flex-start; }
-.title { font-size:16px; font-weight:700; margin:0; }
+.row > * { min-width: 0; }
+.title { display: block; font-size:16px; font-weight:700; margin:0; }
 .badge { font-size:12px; padding:4px 8px; border-radius:999px; border:1px solid #ddd; color:#333; background:#fafafa; white-space:nowrap; }
 .badge.private { border-color:#ffb3b3; background:#fff2f2; color:#b00020; }
 .badge.public { border-color:#bfe8c7; background:#f0fff3; color:#0b6b2f; }
-.kv { margin-top:10px; display:grid; grid-template-columns: 120px 1fr; row-gap:6px; column-gap:10px; font-size:14px; }
+.kv { margin-top:10px; display:grid; grid-template-columns: 120px minmax(0, 1fr); row-gap:6px; column-gap:10px; font-size:14px; }
 .k { color:#666; }
+.v { min-width: 0; }
 .v a { color:#2563eb; text-decoration:none; }
 .v a:hover { text-decoration:underline; }
 .empty { padding:24px; color:#666; }
 .error { padding:14px; border:1px solid #ffcccc; background:#fff5f5; border-radius:12px; color:#b00020; }
 .topline { display:flex; align-items:center; gap:5px; margin-top: 10px;}
+
+/* 카드 안에서 아래쪽 버튼을 오른쪽 정렬 */
+.card-actions{
+    margin-top: 12px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* 버튼 스타일 */
+.btn{
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(37, 99, 235, 0.35);
+    background: rgba(37, 99, 235, 0.08);
+    color: #1d4ed8;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+
+
+/* 공통: 한 줄 말줄임(...) */
+.ellipsis-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

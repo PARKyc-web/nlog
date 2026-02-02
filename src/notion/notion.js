@@ -8,7 +8,7 @@ const DATABASE_URL = "https://api.notion.com/v1/database/";
 const DATASOURCE_URL = "https://api.notion.com/v1/data_sources/";
 const NOTION_PAGE_URL = "https://api.notion.com/v1/page";
 
-// @RequestMapping("/notion")
+// @RequestMapping("/api/notion")
 router.get("/", async (req, res) => {
     try {
         const cursor = req.query.cursor?.toString();

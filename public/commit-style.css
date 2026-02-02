@@ -1,0 +1,219 @@
+:root{
+    --bg: #f7f7f8;
+    --card: #ffffff;
+    --border: #e6e6e8;
+    --text: #111;
+    --muted: #666;
+    --radius: 14px;
+    --shadow: 0 1px 0 rgba(0,0,0,.02), 0 10px 30px rgba(0,0,0,.05);
+}
+
+* { box-sizing: border-box; }
+body{
+    margin:0;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+}
+
+.wrap{
+    width: min(1100px, 100%);
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 18px;
+    align-items: stretch;
+}
+
+.panel{
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-height: 420px;
+}
+
+.panel h2{
+    margin: 0 0 6px;
+    font-size: 18px;
+    letter-spacing: -.2px;
+}
+
+.muted{ color: var(--muted); font-size: 13px; line-height: 1.4; }
+
+.field{
+    display: grid;
+    gap: 8px;
+}
+label{
+    font-size: 13px;
+    color: var(--muted);
+}
+input, select, textarea{
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 12px;
+    font-size: 14px;
+    background: #fff;
+    outline: none;
+}
+input:focus, select:focus, textarea:focus{
+    border-color: #c9c9cf;
+    box-shadow: 0 0 0 3px rgba(0,0,0,.04);
+}
+
+textarea{
+    resize: vertical;
+    min-height: 220px;
+    line-height: 1.5;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    white-space: pre-wrap;
+}
+
+.repoBox{
+    border: 1px dashed var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    background: #fbfbfc;
+}
+.repoTop{
+    display:flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.repoName{
+    font-weight: 700;
+    font-size: 15px;
+}
+.pill{
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: #fff;
+    color: var(--muted);
+}
+.repoMeta{
+    display:grid;
+    gap: 6px;
+    margin-top: 10px;
+    font-size: 13px;
+    color: var(--muted);
+}
+
+.arrowCol{
+    display: grid;
+    place-items: center;
+    padding: 0 2px;
+}
+.arrow{
+    width: 84px;
+    height: 84px;
+    border-radius: 999px;
+    background: #fff;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    display: grid;
+    place-items: center;
+    font-size: 40px;
+    user-select: none;
+}
+.arrow small{
+    display:block;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 6px;
+    text-align:center;
+    line-height:1.2;
+}
+
+.btnRow{
+    display:flex;
+    gap: 10px;
+    margin-top: auto;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+button{
+    border: 1px solid var(--border);
+    background: #fff;
+    border-radius: 12px;
+    padding: 10px 12px;
+    font-size: 14px;
+    cursor: pointer;
+}
+button:hover{ background: #fafafa; }
+button.primary{
+    border-color: #cfcfd6;
+    background: #111;
+    color: #fff;
+}
+button.primary:hover{ filter: brightness(1.05); }
+
+.panelHead{
+    display:flex;
+    align-items:flex-start;
+    gap: 12px;
+}
+
+.backBtn{
+    display:inline-flex;
+    align-items:center;
+    gap: 8px;
+    border: 1px solid var(--border);
+    background: #fff;
+    border-radius: 999px;
+    padding: 8px 10px;
+    color: var(--muted);
+    cursor: pointer;
+}
+
+.backBtn:hover{
+    background:#fafafa;
+    color:#333;
+}
+
+.backIcon{
+    font-size: 16px;
+    line-height: 1;
+    opacity: .55;
+}
+
+.backText{
+    font-size: 13px;
+}
+
+.backBtn--floating{
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 9999;
+    box-shadow: 0 1px 0 rgba(0,0,0,.02), 0 10px 30px rgba(0,0,0,.08);
+}
+
+body { padding-top: 64px; }
+
+
+
+@media (max-width: 860px){
+    .wrap{
+        grid-template-columns: 1fr;
+    }
+    .arrowCol{
+        padding: 0;
+    }
+    .arrow{
+        transform: rotate(90deg);
+    }
+}

@@ -8,7 +8,36 @@ const affiliation = "owner";
 // owner 뿐만 아니라, collaborator에 해당하는 것도 자동으로 요약할 수 있으면 좋을 것 같음
 // 일단 owner 기준으로 작업하자
 
-// @RequestMapping("/github")
+const createHeaders = () => {
+    const token = process.env.GIT_API_KEY;
+    if (!token) throw new Error("Missing GIT_API_KEY in .env");``
+
+    return {
+        Accept: "application/vnd.github+json",
+        "X-GitHub-Api-Version": process.env.GIT_API_VERSION ?? "2022-11-28",
+        Authorization: `Bearer ${token}`,
+    };
+}
+
+const createHeadersByCommit = () => {
+    const token = process.env.GIT_API_KEY;
+    if (!token) throw new Error("Missing GIT_API_KEY in .env");``
+
+    return {
+        Accept: "application/vnd.github.v3.diff",
+        "X-GitHub-Api-Version": process.env.GIT_API_VERSION ?? "2022-11-28",
+        Authorization: `Bearer ${token}`,
+    };
+}
+
+const convertTimeToUTC = (time) => {
+    // 9시간을 더하는게 아닌, UTC 기준으로 KST로 작성되었다는 것을 나타냄(+09:00)
+    const date = new Date(`${time}+09:00`);
+
+    return date.toISOString();
+}
+
+// @RequestMapping("/api/github")
 router.get("/repo", async (req, res) => {
     try {
         const url = new URL("https://api.github.com/user/repos");
@@ -25,7 +54,7 @@ router.get("/repo", async (req, res) => {
         }
 
         const repos = await githubRes.json();
-
+        console.log(repos);
         res.json(
             repos.map((r) => ({
                 raw: r,
@@ -53,8 +82,6 @@ router.get("/commit", async (req, res) => {
     url.searchParams.set("affiliation", affiliation);
     url.searchParams.set("since", convertTimeToUTC("2026-01-13T00:00:00"));
     url.searchParams.set("until", convertTimeToUTC("2026-01-13T23:59:59"));
-    // url.searchParams.set("since", "2026-01-11T00:00:01Z");
-    // url.searchParams.set("until", "2026-01-14T23:59:59Z");
 
     const githubRes = await fetch(url, {headers : createHeaders()});
     const commits = await githubRes.json();
@@ -83,32 +110,3 @@ router.get("/commit", async (req, res) => {
 });
 
 export default router;
-
-function createHeaders() {
-    const token = process.env.GIT_API_KEY;
-    if (!token) throw new Error("Missing GIT_API_KEY in .env");``
-
-    return {
-        Accept: "application/vnd.github+json",
-        "X-GitHub-Api-Version": process.env.GIT_API_VERSION ?? "2022-11-28",
-        Authorization: `Bearer ${token}`,
-    };
-}
-
-function createHeadersByCommit() {
-    const token = process.env.GIT_API_KEY;
-    if (!token) throw new Error("Missing GIT_API_KEY in .env");``
-
-    return {
-        Accept: "application/vnd.github.v3.diff",
-        "X-GitHub-Api-Version": process.env.GIT_API_VERSION ?? "2022-11-28",
-        Authorization: `Bearer ${token}`,
-    };
-}
-
-function convertTimeToUTC(time){
-    // 9시간을 더하는게 아닌, UTC 기준으로 KST로 작성되었다는 것을 나타냄(+09:00)
-    const date = new Date(`${time}+09:00`);
-
-    return date.toISOString();
-}

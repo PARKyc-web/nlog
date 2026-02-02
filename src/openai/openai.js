@@ -4,7 +4,7 @@ import express from "express";
 const router = express.Router();
 const client = new OpenAI({apiKey: process.env.OPENAI_API_KEY});
 
-// @RequestMapping("/openai")
+// @RequestMapping("/api/openai")
 router.get("/", async (req, res) => {
     try {
         const response = await client.responses.create({
