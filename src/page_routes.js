@@ -13,7 +13,9 @@ const goPage = (page_path) => {
 }
 
 router.get("/", (req, res) => {
-    res.send("Hello Express!");
+    const page = goPage("github/repo.html");
+
+    res.sendFile(page);
 });
 
 /* github page controller */
@@ -22,7 +24,7 @@ router.get("/repo", (req, res) => {
 
     res.sendFile(page);
 });
-router.get("/commit", async (req, res) => {
+router.get("/commit/:owner/:id", async (req, res) => {
     const page = goPage("github/commit.html");
 
     res.sendFile(page);

@@ -6,6 +6,7 @@
     <title>GitHub → Notion Summary</title>
 
     <link rel="stylesheet" href="/commit-style.css" />
+    <link rel="stylesheet" href="/common-style.css" />
 </head>
 <body>
 <div class="wrap">
@@ -29,6 +30,7 @@
             </div>
             <div class="repoMeta">
                 <div id="repoDesc">레포 설명이 여기에 표시됩니다.</div>
+                <div class="mt-5"></div>
                 <div>⭐ <span id="repoStars">0</span> · 🍴 <span id="repoForks">0</span> · 🕒 <span id="repoUpdated">-</span></div>
             </div>
         </div>
@@ -85,11 +87,12 @@
 </div>
 
 <script>
-    document.addEventListener("", () => {
-        init();
+    document.addEventListener("DOMContentLoaded", () => {
+        initEvent();
+        loadRepo();
     });
 
-    function init(){
+    function initEvent(){
         // 날짜 초기값 설정
         $("commitDate").value = toISODate(new Date());
         $("notionDate").value = toISODate(new Date());
@@ -99,7 +102,24 @@
             window.location.href="/repo";
         });
 
-        //
+        // Commit 요약 버튼 이벤트
+        document.getElementById("createSummary").addEventListener("click", () => {
+            createSummary();
+        });
+    }
+
+    async function loadRepo(){
+
+        const location = new URL(window.location.href);
+        const pattern = new URLPattern({pathname: "/commit/:owner/:name"});
+        const match = pattern.exec(location);
+        const {owner, name} = match.pathname.groups;
+
+        const url = `/api/github/repo/${owner}/${name}`;
+        const result = await fetch(url);
+
+        state.repo = await result.json();
+        setRepoUI(state.repo);
     }
 
     // ====== Demo state (나중에 실제 API 붙일 때 여기만 교체하면 됨) ======
@@ -128,12 +148,6 @@
     }
 
     function createSummary(){
-
-    }
-
-    // ====== Events ======
-    $("createSummary").addEventListener("click", () => {
-
         if (!state.repo) {
             // 레포 정보는 "표시"가 목적이라서, 없으면 기본값이라도 진행
             setRepoUI({
@@ -149,7 +163,10 @@
         const repoName = state.repo?.full_name ?? "owner/repository";
         const notionType = $("notionType").value || "(노션 종류 미선택)";
         const notionDate = $("notionDate").value || "(입력 날짜 미지정)";
-    });
+    }
+
+    // ====== Events ======
+
 /*
         const demoSummary =
             `[요약 데모]

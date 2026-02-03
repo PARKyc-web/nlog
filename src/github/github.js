@@ -38,7 +38,9 @@ const convertTimeToUTC = (time) => {
 }
 
 // @RequestMapping("/api/github")
-router.get("/repo", async (req, res) => {
+
+/** 사용자의 전체 Repo를 조회하는 API */
+router.get("/repos", async (req, res) => {
     try {
         const url = new URL("https://api.github.com/user/repos");
         url.searchParams.set("per_page", String(per_page));
@@ -73,7 +75,20 @@ router.get("/repo", async (req, res) => {
     }
 });
 
-router.get("/commit", async (req, res) => {
+/** 사용자의 특정 1개 Repo에 대한 정보를 조회한다. */
+router.get("/repo/:owner/:name", async (req, res) => {
+    const owner = req.params.owner;
+    const name = req.params.name;
+
+    const url = new URL(`https://api.github.com/repos/${owner}/${name}`);
+
+    const repoRes = await fetch(url, {headers: createHeaders()});
+    const result = await repoRes.json();
+
+    res.send(result);
+});
+
+router.get("/commit/:date", async (req, res) => {
     const url = new URL("https://api.github.com/repos/PARKyc-web/nlog/commits");
     url.searchParams.set("per_page", String(per_page));
     url.searchParams.set("page", String(page));
