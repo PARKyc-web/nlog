@@ -1,26 +1,19 @@
-import OpenAI from "openai";
 import express from "express";
+import openaiService from "./openaiService.js";
 
 const router = express.Router();
-const client = new OpenAI({apiKey: process.env.OPENAI_API_KEY});
 
 // @RequestMapping("/api/openai")
 router.get("/", async (req, res) => {
-    try {
-        const response = await client.responses.create({
-            model: "gpt-5-nano",
-            input: "Write a one-sentence bedtime story about a unicorn.",
-        });
-
-        res.send(response.output_text);
-    } catch (err) {
-        console.error(err);
-        res.status(500).send("OpenAI request failed. Check server logs and OPENAI_API_KEY.");
-    }
+   res.send("OpenAI Controller!! ");
 });
 
-router.get("/summary", async (req, res) => {
+router.get("/summary/:repo", async (req, res) => {
 
+    const repo = req.params.repo;
+    const data = await openaiService.summaryRepo(repo);
+
+    res.send(data);
     /*
     * 1. 프로젝트를 최초 1회 요약해야 됨.
     * 2. 근데 프로젝트를 전부 요약한다.???
@@ -33,7 +26,9 @@ router.get("/summary", async (req, res) => {
     * 2-2) 특정 파일들만 요약한다.
     *   > 정확도가 떨어짐.. project_summary.md 파일을 만드는 것은 동일
     *
-    *
+    * 문제점.
+    * 1. 생각보다 요약하는데 시간이 오래걸림... 비동기로 돌리고 나중에 확인할 수 있도록 해야할듯?
+    * 2. repo 요약 내용을 확인할 수 있는 페이지가 잇어야 함.
     *
     * */
 
