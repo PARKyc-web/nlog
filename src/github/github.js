@@ -1,4 +1,6 @@
 import express from "express";
+import githubService from "./githubService.js";
+import openaiClient from "../openai/openaiClient.js";
 
 const router = express.Router();
 
@@ -84,6 +86,61 @@ router.get("/repo/:owner/:name", async (req, res) => {
 
     const repoRes = await fetch(url, {headers: createHeaders()});
     const result = await repoRes.json();
+
+    res.send(result);
+});
+
+router.get("/repo/tree", async (req, res) => {
+    const response = await githubService.getRepoTree();
+    res.send(response);
+});
+
+router.get("/repo/json-tree", async (req, res) => {
+    const response = await githubService.getRepoJsonTree();
+    res.send(response);
+});
+
+router.get("/repo/summ-test", async (req, res) => {
+    const project = await githubService.getRepoJsonTree();
+    const prompt = `다음은 특정 GitHub 프로젝트의 "구조 요약"을 만들기 위한 입력이다.
+
+[입력 데이터]
+- 프로젝트 구조(JSON):
+${project}
+
+-URL
+이것은 https://github.com/PARKyc-web/nlog
+
+[출력 목표]
+- 이 프로젝트를 이해하기 위한 "참고용 TXT 요약"을 생성하라.
+- 결과는 사람이 나중에 다시 읽기 위한 문서이며, 대화 응답이 아니다.
+
+[출력 형식 규칙]
+- 반드시 순수 텍스트(txt) 형식으로 출력할 것
+- 제목과 섹션 헤더를 포함하되, 마크다운 기호(#, *, - 등)는 사용하지 말 것
+- 문장은 모두 설명체/서술체로 작성할 것
+- 존댓말, 질문, 제안, 대화체 표현을 사용하지 말 것
+
+[내용 규칙]
+- URL, 출처 링크, 괄호 안 참고 주소를 절대 포함하지 말 것
+- "원하시면", "알려주시면", "추가로", "참고로"와 같은 사용자에게 말 거는 문장을 쓰지 말 것
+- 모델 자신이나 응답 행위를 언급하지 말 것
+- 파일/폴더 설명은 구조 기반으로 단정적으로 서술하되, 추정인 경우 "(추정)"으로만 표기
+
+[포함해야 할 항목]
+1. 프로젝트 개요(목적, 성격)
+2. 기술 스택 요약
+3. 디렉터리별 역할 설명
+4. 전체 동작 흐름 요약
+5. 활용 목적
+
+[출력 제한]
+- 불필요한 반복 설명 금지
+- 링크·각주·출처 섹션 생성 금지
+- 마지막 문장은 안내 문구 없이 내용으로 종료할 것
+
+이 규칙을 어기지 말고 결과 텍스트만 출력하라.`
+    const result = await openaiClient.getWebSearchPrompt(prompt);
 
     res.send(result);
 });

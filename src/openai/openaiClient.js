@@ -50,7 +50,41 @@ async function getPromptText(prompt){
     return response;
 }
 
+async function getWebSearchPrompt(prompt){
+    const response = {status: 200, statusText: "200 OK", data : ""};
+    try{
+        chkPrompt(prompt);
+        const promptRes = await client.responses.create({
+            model: "gpt-5-nano",
+            tools: [
+                {
+                    type: "web_search",
+                    search_context_size: "low", // 또는 "medium"
+                }
+            ],
+            input: prompt,
+        });
+
+        response.data = promptRes.output_text;
+    } catch (error){
+        console.error(error);
+
+        // 입력 검증 에러면 400으로 처리하고 싶으면:
+        if (error instanceof TypeError || error instanceof RangeError) {
+            response.status = 400;
+            response.statusText = "400 Bad Request";
+            response.data = error.message;
+        } else {
+            response.status = 500;
+            response.statusText = "500 Server Error"
+            response.data = error?.message ?? String(error);
+        }
+    }
+
+    return response;
+}
 
 export default {
     getPromptText,
+    getWebSearchPrompt
 }

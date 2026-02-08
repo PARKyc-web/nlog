@@ -8,10 +8,10 @@ router.get("/", async (req, res) => {
    res.send("OpenAI Controller!! ");
 });
 
-router.get("/summary/:repo", async (req, res) => {
+router.get("/summary", async (req, res) => {
 
-    const repo = req.params.repo;
-    const data = await openaiService.summaryRepo(repo);
+    // const repo = req.params.repo;
+    const data = await openaiService.summaryRepo('https://github.com/PARKyc-web/nlog');
 
     res.send(data);
     /*
