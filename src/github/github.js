@@ -102,6 +102,9 @@ router.get("/repo/json-tree", async (req, res) => {
 
 router.get("/repo/summ-test", async (req, res) => {
     const project = await githubService.getRepoJsonTree();
+    /* 프로젝트 구조에 대한 데이터를 정리해서 주지 않을 경우, context 용량이 늘어남
+       diff는 어떻게 조절할껀데?
+    *  */
     const prompt = `다음은 특정 프로젝트의 요약을 만들기 위한 입력이다.
 이 프로젝트 요약은 이후 commit 및 diff 내용을 해석할 때, 변경된 파일이 어떤 기능 영역에 속하는지 판단하는 참고 맥락으로 사용된다.
 
